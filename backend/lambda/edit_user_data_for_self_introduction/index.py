@@ -38,11 +38,11 @@ def handler(event, context):
     try:
         ############################### [メイン処理] ###############################
         # リクエストボディから取得した値を変数へ格納
-        body = json.loads(event['body'])['id']
+        body = json.loads(event['body'])
         LOGGER.info("body_val: {0}".format(body))
 
         # DynamoDBテーブルのデータを更新する
-        USER_TABLE.put_item(Item=body['data'])
+        USER_TABLE.put_item(Item=body)
 
         # レスポンスの作成
         ## json モジュールの dumps 関数を使って、PythonオブジェクトをJSON文字列に変換する
