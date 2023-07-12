@@ -1,5 +1,8 @@
 <template>
+  <!-- このコードではVuetifyを使用してレイアウトを調整している：https://vuetifyjs.com/en/ -->
+  <!-- また、コード内容が理解しやすいようにパーツごとのコンポーネント化はせず、あえて単一コンポーネントで実装している -->
   <v-app dark>
+    <!-- タイトルを表示するヘッダー部分 -->
     <v-app-bar fixed app class="bg-primary">
       <v-toolbar-title class="text-h4 font-weight-bold text-secondary"
         >Self Introduction</v-toolbar-title
@@ -7,8 +10,10 @@
     </v-app-bar>
     <v-spacer />
     <v-main>
+      <!-- 取得したプロフィールを表示する部分 -->
+      <!-- displayWhichContent変数がprofileの時の表示される -->
       <v-container
-        v-if="contentFlag == 'profile'"
+        v-if="displayWhichContent == 'profile'"
         class="bg-primary text-secondary"
       >
         <v-row text-align="center" justify="center">
@@ -34,7 +39,7 @@
                 </p>
                 <v-btn
                   class="mt-4"
-                  @click="contentFlag = 'edit'"
+                  @click="displayWhichContent = 'edit'"
                   color="setting"
                   variant="outlined"
                   >Edit</v-btn
@@ -73,7 +78,9 @@
         </v-row>
       </v-container>
 
-      <v-container v-if="contentFlag == 'edit'" class="bg-primary">
+      <!-- プロフィールを編集する部分 -->
+      <!-- displayWhichContent変数がeditの時の表示される -->
+      <v-container v-if="displayWhichContent == 'edit'" class="bg-primary">
         <v-row text-align="center" justify="center">
           <v-col cols="10">
             <v-row>
@@ -183,6 +190,7 @@
       </v-container>
     </v-main>
 
+    <!-- ローディング表示用オーバーレイ -->
     <v-overlay v-model="isLoading" class="justify-center align-center">
       <v-progress-circular
         color="setting"
@@ -192,29 +200,34 @@
       ></v-progress-circular>
     </v-overlay>
 
+    <!-- 権利関係を表示するフッター部分 -->
     <v-footer app height="32">
-      <v-col class="text-center py-0"
-        >&copy; {{ new Date().getFullYear() }} papi-tokei all rights
-        reserved.</v-col
-      >
+      <v-spacer />
+      <v-col class="text-center">
+        &copy; {{ new Date().getFullYear() }} iot.kyoto all rights reserved.
+      </v-col>
+      <v-col class="text-center">Special Thanks papi-tokei</v-col>
+      <v-spacer />
     </v-footer>
   </v-app>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from "vue";
+// AxiosというHTTPライブラリを使用してAPIとの通信を行うためここでimport
+// Axios API Reference：https://axios-http.com/docs/api_intro
 import axios, { isAxiosError } from "axios";
 
 // 定数の定義
 // TODO: エンドポイントとAPIキーを修正する
-const URL ="";
+const URL = "";
 const API_KEY = "";
-const ID = "1";// IDは1固定のため定数定義
+const ID = "1"; // IDは1固定のため定数定義
 
 // axiosのデフォルトヘッダーとしてAPIキーを設定
 axios.defaults.headers["X-API-KEY"] = API_KEY;
 
-// プロフィールデータ群の型を定義する
+// プロフィールデータ群の型
 interface ProfileData {
   id?: string;
   name: string;
@@ -224,7 +237,7 @@ interface ProfileData {
   comment: string;
 }
 
-// プロフィールデータ群の変数を定義
+// プロフィールデータ群のオブジェクト
 const profileData: ProfileData = reactive({
   name: "",
   skill: "",
@@ -233,7 +246,7 @@ const profileData: ProfileData = reactive({
   comment: "",
 });
 
-// 編集の変数を定義
+// プロフィール編集用のオブジェクト
 const editProfileData: ProfileData = reactive({
   name: "",
   skill: "",
@@ -242,21 +255,27 @@ const editProfileData: ProfileData = reactive({
   comment: "",
 });
 
-const contentFlag = ref<"profile" | "edit" | "close">("profile");
-const isShownSnackbar = ref<boolean>(false);
-const errorMessage = ref<string>("");
+// ローディング表示のフラグを管理する変数
 const isLoading = ref<boolean>(false);
+// 画面表示コンテンツを制御するための変数
+const displayWhichContent = ref<"profile" | "edit" | "close">("profile");
+// 画面に表示するエラーメッセージを格納する変数
+const errorMessage = ref<string>("");
+// ヘラーメッセージ表示のフラグを管理するための変数
+const isShownSnackbar = ref<boolean>(false);
 
+// コンポーネントがマウントされた後に呼び出される内容
+// Vueのライフサイクルフック：https://ja.vuejs.org/api/composition-api-lifecycle.html#onmounted
 onMounted(() => {
   const load = async () => {
     try {
-      contentFlag.value = "close";
+      displayWhichContent.value = "close";
       isLoading.value = true;
       await getProfile();
       console.log(profileData);
       cancelProfile();
       isLoading.value = false;
-      contentFlag.value = "profile";
+      displayWhichContent.value = "profile";
     } catch (err) {
       console.error("エラー：" + err);
       isLoading.value = false;
@@ -264,7 +283,6 @@ onMounted(() => {
   };
   load();
 });
-
 
 // DBから取得するデータの型を定義
 interface receivedData {
@@ -277,7 +295,7 @@ interface receivedData {
 }
 
 /**
- * DBからプロフフィール内容を取得し、変数へ格納する関数
+ * DBからプロフフィール内容を取得し、オブジェクトへ格納する関数
  */
 async function getProfile(): Promise<any> {
   try {
@@ -315,7 +333,7 @@ async function saveProfile() {
       like: editProfileData.like,
       comment: editProfileData.comment,
     });
-    console.log("put response:",response)
+    console.log("put response:", response);
     await getProfile();
   } catch (err) {
     if (isAxiosError(err)) {
@@ -328,7 +346,7 @@ async function saveProfile() {
       isShownSnackbar.value = true;
     }
   }
-  contentFlag.value = "profile";
+  displayWhichContent.value = "profile";
 }
 
 /**
@@ -340,9 +358,8 @@ function cancelProfile(): void {
   editProfileData.hobbyList = profileData["hobbyList"].concat();
   editProfileData.like = profileData.like;
   editProfileData.comment = profileData.comment;
-  contentFlag.value = "profile";
+  displayWhichContent.value = "profile";
 }
-
 
 /**
  * Hobbyの配列の最後尾に要素を追加する関数
