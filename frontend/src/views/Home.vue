@@ -11,7 +11,7 @@
     <v-spacer />
     <v-main>
       <!-- 取得したプロフィールを表示する部分 -->
-      <!-- displayWhichContent変数がprofileの時の表示される -->
+      <!-- displayWhichContent変数がprofileの時に表示される -->
       <v-container
         v-if="displayWhichContent == 'profile'"
         class="bg-primary text-secondary"
@@ -79,7 +79,7 @@
       </v-container>
 
       <!-- プロフィールを編集する部分 -->
-      <!-- displayWhichContent変数がeditの時の表示される -->
+      <!-- displayWhichContent変数がeditの時に表示される -->
       <v-container v-if="displayWhichContent == 'edit'" class="bg-primary">
         <v-row text-align="center" justify="center">
           <v-col cols="10">
@@ -201,13 +201,11 @@
     </v-overlay>
 
     <!-- 権利関係を表示するフッター部分 -->
-    <v-footer app height="32">
-      <v-spacer />
-      <v-col class="text-center">
-        &copy; {{ new Date().getFullYear() }} iot.kyoto all rights reserved.
+    <v-footer app height="auto">
+      <v-col class="text-center py-0">
+        <p>Special Thanks <a href="https://qiita.com/papi_tokei/contributions" target="_blank">@papi_tokei</a></p>
+        <p>&copy; {{ new Date().getFullYear() }} iot.kyoto all rights reserved.</p>
       </v-col>
-      <v-col class="text-center">Special Thanks papi-tokei</v-col>
-      <v-spacer />
     </v-footer>
   </v-app>
 </template>
